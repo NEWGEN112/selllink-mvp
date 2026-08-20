@@ -36,25 +36,22 @@ function render() {
   if (!state.store) return renderCreateStore();
   return renderDashboard();
 }
+
 function renderAuth() {
-  app.innerHTML = `
-    <main class="auth">
-      <section class="card">
-        <div class="brand">Sell<span>Link</span></div>
-        <h1>Your simple online shop.</h1>
-        <p class="muted">Create your store, upload products and let customers order through WhatsApp.</p>
-        <div class="tabs">
-          <button class="tab active" data-mode="login">Login</button>
-          <button class="tab" data-mode="signup">Create account</button>
-        </div>
-        <form id="auth-form">
-          <label>Email<input id="email" type="email" required placeholder="you@example.com"></label>
-          <label>Password<input id="password" type="password" minlength="6" required placeholder="At least 6 characters"></label>
-          <button class="primary" type="submit">Continue</button>
-        </form>
-        <p id="auth-msg" class="message"></p>
-      </section>
-    </main>`;
+  app.innerHTML =
+    '<main class="auth"><section class="card">' +
+    '<div class="brand">Sell<span>Link</span></div>' +
+    '<h1>Your simple online shop.</h1>' +
+    '<p class="muted">Create your store, upload products and let customers order through WhatsApp.</p>' +
+    '<div class="tabs">' +
+    '<button class="tab active" data-mode="login">Login</button>' +
+    '<button class="tab" data-mode="signup">Create account</button>' +
+    '</div>' +
+    '<form id="auth-form">' +
+    '<label>Email<input id="email" type="email" required placeholder="you@example.com"></label>' +
+    '<label>Password<input id="password" type="password" minlength="6" required placeholder="At least 6 characters"></label>' +
+    '<button class="primary" type="submit">Continue</button>' +
+    '</form><p id="auth-msg" class="message"></p></section></main>';
 
   let mode = 'login';
   document.querySelectorAll('.tab').forEach(btn => btn.onclick = () => {
@@ -69,33 +66,29 @@ function renderAuth() {
     const password = document.querySelector('#password').value;
     const msg = document.querySelector('#auth-msg');
     msg.textContent = 'Please wait...';
-
     let error;
     if (mode === 'login') {
       ({ error } = await supabase.auth.signInWithPassword({ email, password }));
     } else {
       ({ error } = await supabase.auth.signUp({ email, password }));
     }
-    msg.textContent = error ? error.message : (mode === 'signup' ? 'Account created! Check your email if confirmation is required.' : '');
+    msg.textContent = error ? error.message : (mode === 'signup' ? 'Account created!' : '');
   };
-    }
+}
+
 function renderCreateStore() {
-  app.innerHTML = `
-    <main class="auth">
-      <section class="card">
-        <div class="brand">Sell<span>Link</span></div>
-        <h1>Create your store</h1>
-        <p class="muted">This is the public page customers will see.</p>
-        <form id="store-form">
-          <label>Store name<input id="name" required placeholder="Ada Fashion"></label>
-          <label>Store link (slug)<input id="slug" required placeholder="ada-fashion"></label>
-          <label>WhatsApp number<input id="whatsapp" required placeholder="2348012345678"></label>
-          <label>Short description<textarea id="description" placeholder="Quality clothes at good prices"></textarea></label>
-          <button class="primary" type="submit">Create store</button>
-        </form>
-        <p id="store-msg" class="message"></p>
-      </section>
-    </main>`;
+  app.innerHTML =
+    '<main class="auth"><section class="card">' +
+    '<div class="brand">Sell<span>Link</span></div>' +
+    '<h1>Create your store</h1>' +
+    '<p class="muted">This is the public page customers will see.</p>' +
+    '<form id="store-form">' +
+    '<label>Store name<input id="name" required placeholder="Ada Fashion"></label>' +
+    '<label>Store link (slug)<input id="slug" required placeholder="ada-fashion"></label>' +
+    '<label>WhatsApp number<input id="whatsapp" required placeholder="2348012345678"></label>' +
+    '<label>Short description<textarea id="description" placeholder="Quality clothes at good prices"></textarea></label>' +
+    '<button class="primary" type="submit">Create store</button>' +
+    '</form><p id="store-msg" class="message"></p></section></main>';
 
   document.querySelector('#store-form').onsubmit = async e => {
     e.preventDefault();
@@ -109,7 +102,8 @@ function renderCreateStore() {
     document.querySelector('#store-msg').textContent = error ? error.message : 'Store created.';
     if (!error) { await loadStore(); render(); }
   };
-      }
+}
+
 function renderDashboard() {
   const storeName = esc(state.store.name);
   const storeDesc = esc(state.store.description || 'Add products and start selling.');
@@ -160,9 +154,11 @@ function renderDashboard() {
     render();
   });
 }
+
 function productCard(p) {
-  const img = p.image_url
-    ? '<img src="' + esc(p.image_url) + '" alt="' + esc(p.name) + '">'
+  const firstImage = (p.images && p.images.length) ? p.images[0] : p.image_url;
+  const img = firstImage
+    ? '<img src="' + esc(firstImage) + '" alt="' + esc(p.name) + '">'
     : '<div class="placeholder">No image</div>';
   return '<article class="product">' + img +
     '<div class="product-body"><h3>' + esc(p.name) + '</h3><strong>' + money(p.price) + '</strong><p>' + esc(p.description || '') + '</p>' +
@@ -172,32 +168,34 @@ function productCard(p) {
 function showProductForm() {
   const modal = document.createElement('div');
   modal.className = 'modal';
-  modal.innerHTML = `
-    <div class="modal-card">
-      <button class="close" id="close">×</button>
-      <h2>Add product</h2>
-      <form id="product-form">
-        <label>Product name<input id="pname" required placeholder="e.g. Ankara Gown"></label>
-        <label>Price (₦)<input id="price" type="number" min="0" step="any" required placeholder="15000"></label>
-        <label>Category<input id="category" placeholder="Fashion, Shoes, Electronics..."></label>
-        <label>Description<textarea id="desc" placeholder="Short description of the product"></textarea></label>
-        <label>Product image
-          <input id="image-file" type="file" accept="image/*" multiple>
-        </label>
-        <div id="image-preview" class="image-preview hidden">
-          <img id="preview-img" alt="Preview">
-          <button type="button" class="link" id="remove-image">Remove</button>
-        </div>
-        <button class="primary" id="publish-btn" type="submit">Publish product</button>
-        <p id="pmsg" class="message"></p>
-      </form>
-    </div>`;
+  modal.innerHTML =
+    '<div class="modal-card">' +
+      '<button class="close" id="close">×</button>' +
+      '<h2>Add product</h2>' +
+      '<form id="product-form">' +
+        '<label>Product name<input id="pname" required placeholder="e.g. Ankara Gown"></label>' +
+        '<label>Price (₦)<input id="price" type="number" min="0" step="any" required placeholder="15000"></label>' +
+        '<label>Category<input id="category" placeholder="Fashion, Shoes, Electronics..."></label>' +
+        '<label>Description<textarea id="desc" placeholder="Short description of the product"></textarea></label>' +
+        '<label>Product images (up to 10)' +
+          '<input id="image-file" type="file" accept="image/*" multiple>' +
+        '</label>' +
+        '<div id="image-preview" class="image-preview hidden">' +
+          '<img id="preview-img" alt="Preview">' +
+          '<p id="image-count" class="muted"></p>' +
+          '<button type="button" class="link" id="remove-image">Remove all</button>' +
+        '</div>' +
+        '<button class="primary" id="publish-btn" type="submit">Publish product</button>' +
+        '<p id="pmsg" class="message"></p>' +
+      '</form>' +
+    '</div>';
 
   document.body.appendChild(modal);
 
   const fileInput = modal.querySelector('#image-file');
   const previewBox = modal.querySelector('#image-preview');
   const previewImg = modal.querySelector('#preview-img');
+  const imageCount = modal.querySelector('#image-count');
   const removeBtn = modal.querySelector('#remove-image');
   const msg = modal.querySelector('#pmsg');
   const publishBtn = modal.querySelector('#publish-btn');
@@ -205,30 +203,40 @@ function showProductForm() {
   let selectedFiles = [];
 
   fileInput.onchange = () => {
-    const file = fileInput.files[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      msg.textContent = 'Please select an image file.';
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      msg.textContent = 'Image must be smaller than 5 MB.';
-      return;
-    }
-    selectedFile = file;
-    previewImg.src = URL.createObjectURL(file);
-    previewBox.classList.remove('hidden');
+    const files = Array.from(fileInput.files || []);
     msg.textContent = '';
+    if (files.length === 0) return;
+    if (files.length > 10) {
+      msg.textContent = 'Maximum 10 images allowed.';
+      return;
+    }
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) {
+        msg.textContent = 'Please select only image files.';
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        msg.textContent = 'Each image must be smaller than 5 MB.';
+        return;
+      }
+    }
+    selectedFiles = files;
+    previewImg.src = URL.createObjectURL(files[0]);
+    imageCount.textContent = files.length + ' image(s) selected';
+    previewBox.classList.remove('hidden');
   };
 
   removeBtn.onclick = () => {
-    selectedFile = null;
+    selectedFiles = [];
     fileInput.value = '';
     previewBox.classList.add('hidden');
     previewImg.src = '';
+    imageCount.textContent = '';
+    msg.textContent = '';
   };
 
   modal.querySelector('#close').onclick = () => modal.remove();
+
   modal.querySelector('#product-form').onsubmit = async e => {
     e.preventDefault();
     msg.textContent = '';
@@ -236,18 +244,16 @@ function showProductForm() {
     publishBtn.textContent = 'Publishing...';
 
     try {
-      let imageUrl = '';
+      const imageUrls = [];
 
-      if (selectedFile) {
-        const ext = selectedFile.name.split('.').pop() || 'jpg';
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        const ext = file.name.split('.').pop() || 'jpg';
         const fileName = state.store.id + '/' + crypto.randomUUID() + '.' + ext;
 
         const { error: uploadError } = await supabase.storage
           .from('product-images')
-          .upload(fileName, selectedFile, {
-            cacheControl: '3600',
-            upsert: false
-          });
+          .upload(fileName, file, { cacheControl: '3600', upsert: false });
 
         if (uploadError) {
           throw new Error('Image upload failed: ' + uploadError.message);
@@ -257,7 +263,8 @@ function showProductForm() {
           .from('product-images')
           .getPublicUrl(fileName);
 
-        imageUrl = publicData.publicUrl;
+        imageUrls.push(publicData.publicUrl);
+        publishBtn.textContent = 'Uploading ' + (i + 1) + '/' + selectedFiles.length + '...';
       }
 
       const { error } = await supabase.from('products').insert({
@@ -266,7 +273,8 @@ function showProductForm() {
         price: Number(modal.querySelector('#price').value),
         category: modal.querySelector('#category').value.trim(),
         description: modal.querySelector('#desc').value.trim(),
-        image_url: imageUrl
+        image_url: imageUrls[0] || '',
+        images: imageUrls
       });
 
       if (error) throw error;
@@ -280,7 +288,8 @@ function showProductForm() {
       publishBtn.textContent = 'Publish product';
     }
   };
-    }
+}
+
 async function renderPublicStore(slug) {
   const { data: store } = await supabase.from('stores').select('*').eq('slug', slug).single();
   if (!store) {
@@ -297,10 +306,11 @@ async function renderPublicStore(slug) {
   let productsHtml = '';
   if (products && products.length) {
     productsHtml = products.map(p => {
-      const text = encodeURIComponent('Hello, I\'m interested in ' + p.name + ' - ' + money(p.price) + '. How can I place an order?');
-      const phone = String(store.whatsapp || '').replace(/\D/g, '');
-      const img = p.image_url
-        ? '<img src="' + esc(p.image_url) + '" alt="' + esc(p.name) + '">'
+      const text = encodeURIComponent('Hello, I am interested in ' + p.name + ' - ' + money(p.price) + '. How can I place an order?');
+      const phone = String(store.whatsapp || store.whatsapp_number || '').replace(/\D/g, '');
+      const firstImage = (p.images && p.images.length) ? p.images[0] : p.image_url;
+      const img = firstImage
+        ? '<img src="' + esc(firstImage) + '" alt="' + esc(p.name) + '">'
         : '<div class="placeholder">No image</div>';
       return '<article class="shop-product">' + img +
         '<div class="product-body">' +
@@ -314,15 +324,15 @@ async function renderPublicStore(slug) {
     productsHtml = '<p class="muted" style="grid-column:1/-1;text-align:center">No products available yet.</p>';
   }
 
-  app.innerHTML = `
-    <main class="shop">
-      <section class="shop-head">
-        <div class="brand">Sell<span>Link</span></div>
-        <h1>${esc(store.name)}</h1>
-        <p>${esc(store.description || '')}</p>
-      </section>
-      <section class="shop-grid">${productsHtml}</section>
-    </main>`;
+  app.innerHTML =
+    '<main class="shop">' +
+      '<section class="shop-head">' +
+        '<div class="brand">Sell<span>Link</span></div>' +
+        '<h1>' + esc(store.name) + '</h1>' +
+        '<p>' + esc(store.description || '') + '</p>' +
+      '</section>' +
+      '<section class="shop-grid">' + productsHtml + '</section>' +
+    '</main>';
 }
 
 supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -341,4 +351,4 @@ if (storeSlug) {
     if (state.session) await loadStore();
     render();
   });
-  }
+}
