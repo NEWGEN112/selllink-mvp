@@ -202,7 +202,7 @@ function showProductForm() {
   const msg = modal.querySelector('#pmsg');
   const publishBtn = modal.querySelector('#publish-btn');
 
-  let selectedFile = null;
+  let selectedFiles = [];
 
   fileInput.onchange = () => {
     const file = fileInput.files[0];
