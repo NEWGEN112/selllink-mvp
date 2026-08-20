@@ -340,4 +340,4 @@ if (storeSlug) {
     if (state.session) await loadStore();
     render();
   });
-        }
+  }
