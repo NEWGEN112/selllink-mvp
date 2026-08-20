@@ -115,32 +115,33 @@ function renderDashboard() {
   const storeDesc = esc(state.store.description || 'Add products and start selling.');
   const storeSlug = encodeURIComponent(state.store.slug);
   const whatsappVal = esc(state.store.whatsapp || '');
+  const productsHtml = state.products.length
+    ? state.products.map(productCard).join('')
+    : '<p class="muted">No products yet. Add your first product.</p>';
 
-  app.innerHTML = `
-    <header class="topbar">
-      <div class="brand">Sell<span>Link</span></div>
-      <div><a class="view" href="?store=${storeSlug}" target="_blank">View store</a>
-      <button class="link" id="logout">Log out</button></div>
-    </header>
-    <main class="dashboard">
-      <section class="hero">
-        <div><p class="eyebrow">MY STORE</p><h1></h1><p class="muted"></p></div>
-        <button class="primary" id="add-product">+ Add product</button>
-      </section>
-      <section class="panel">
-        <h2>Products</h2>
-        <div id="products" class="products">
-          ${state.products.length ? state.products.map(productCard).join('') : '<p class="muted">No products yet. Add your first product.</p>'}
-        </div>
-      </section>
-      <section class="panel">
-        <h2>WhatsApp</h2>
-        <form id="settings-form" class="inline-form">
-          <label>WhatsApp number<input id="whatsapp" value="${whatsappVal}" placeholder="2348012345678"></label>
-          <button class="primary">Save</button>
-        </form>
-      </section>
-    </main>`;
+  app.innerHTML =
+    '<header class="topbar">' +
+      '<div class="brand">Sell<span>Link</span></div>' +
+      '<div><a class="view" href="?store=' + storeSlug + '" target="_blank">View store</a>' +
+      '<button class="link" id="logout">Log out</button></div>' +
+    '</header>' +
+    '<main class="dashboard">' +
+      '<section class="hero">' +
+        '<div><p class="eyebrow">MY STORE</p><h1>' + storeName + '</h1><p class="muted">' + storeDesc + '</p></div>' +
+        '<button class="primary" id="add-product">+ Add product</button>' +
+      '</section>' +
+      '<section class="panel">' +
+        '<h2>Products</h2>' +
+        '<div id="products" class="products">' + productsHtml + '</div>' +
+      '</section>' +
+      '<section class="panel">' +
+        '<h2>WhatsApp</h2>' +
+        '<form id="settings-form" class="inline-form">' +
+          '<label>WhatsApp number<input id="whatsapp" value="' + whatsappVal + '" placeholder="2348012345678"></label>' +
+          '<button class="primary">Save</button>' +
+        '</form>' +
+      '</section>' +
+    '</main>';
 
   document.querySelector('#logout').onclick = () => supabase.auth.signOut();
   document.querySelector('#add-product').onclick = () => showProductForm();
@@ -158,7 +159,7 @@ function renderDashboard() {
     await loadStore();
     render();
   });
-    }
+}
 function productCard(p) {
   const img = p.image_url
     ? '<img src="' + esc(p.image_url) + '" alt="' + esc(p.name) + '">'
