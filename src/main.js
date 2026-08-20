@@ -182,7 +182,7 @@ function showProductForm() {
         <label>Category<input id="category" placeholder="Fashion, Shoes, Electronics..."></label>
         <label>Description<textarea id="desc" placeholder="Short description of the product"></textarea></label>
         <label>Product image
-          <input id="image-file" type="file" accept="image/*" capture="environment">
+          <input id="image-file" type="file" accept="image/*">
         </label>
         <div id="image-preview" class="image-preview hidden">
           <img id="preview-img" alt="Preview">
