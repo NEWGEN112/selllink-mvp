@@ -124,7 +124,7 @@ function renderDashboard() {
     </header>
     <main class="dashboard">
       <section class="hero">
-        <div><p class="eyebrow">MY STORE</p><h1>\( {storeName}</h1><p class="muted"> \){storeDesc}</p></div>
+        <div><p class="eyebrow">MY STORE</p><h1></h1><p class="muted"></p></div>
         <button class="primary" id="add-product">+ Add product</button>
       </section>
       <section class="panel">
